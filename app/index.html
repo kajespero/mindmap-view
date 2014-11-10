@@ -1,0 +1,72 @@
+<!doctype html>
+<html class="no-js">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="styles/main.css">
+  </head>
+  <body ng-app="mindmapViewApp">
+    <!--[if lt IE 7]>
+      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+
+    <!-- Add your site or application content here -->
+    <div class="container">
+      <div ng-view=""/>
+    </div>
+
+    <!-- build:js(.) scripts/oldieshim.js -->
+    <!--[if lt IE 9]>
+    <script src="bower_components/es5-shim/es5-shim.js"></script>
+    <script src="bower_components/json3/lib/json3.js"></script>
+    <![endif]-->
+    <!-- endbuild -->
+
+    <!-- build:js(.) scripts/vendor.js -->
+    <!-- bower:js -->
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/angular-resource/angular-resource.js"></script>
+    <script src="bower_components/angular-cookies/angular-cookies.js"></script>
+    <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+    <script src="bower_components/angular-animate/angular-animate.js"></script>
+    <script src="bower_components/angular-touch/angular-touch.js"></script>
+    <script src="bower_components/angular-route/angular-route.js"></script>
+    <script src="bower_components/snap.svg/dist/snap.svg-min.js"></script>
+    <script src="bower_components/underscore/underscore.js"></script>
+    <!-- endbower -->
+    <!-- endbuild -->
+
+
+    <!-- build:js({.tmp,app}) scripts/scripts.js -->
+    <script src="scripts/app.js"></script>
+
+     <!-- models script -->
+    <script src="scripts/models/mindmap.js"></script> 
+    <script src="scripts/models/node.js"></script>
+
+     <!-- providers script -->
+    <script src="scripts/providers/storage/indexeddb-storage.js"></script>
+    <script src="scripts/providers/storage/storage.js"></script>
+
+
+    <!-- services script -->
+    <script src="scripts/services/storage/storage.js"></script> 
+    <script src="scripts/services/mindmap-service.js"></script>
+
+    <!-- directives script -->
+    <script src="scripts/directives/mindmap.js"></script>
+    <script src="scripts/directives/components/rectangle.js"></script>
+    <script src="scripts/directives/components/path.js"></script>
+    <script src="scripts/directives/components/pop-up-input.js"></script>
+
+    <!-- controllers script -->
+    <script src="scripts/controllers/mindmap.js"></script>
+    
+    <!-- utils and service script -->
+    <script src="scripts/utils/uuid.js"></script>
+    <script src="scripts/utils/keyboard-utils.js"></script>
+    <!-- endbuild -->
+</body>
+</html>
