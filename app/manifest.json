@@ -1,0 +1,13 @@
+{
+  "name": "MindMap",
+  "description": "MindMap apps launcher for chrome",
+  "version": "0.1",
+  "manifest_version": 2,
+  "app": {
+    "background": {
+      "scripts": ["launcher-chromeapps.js"]
+    }
+  },
+  "permissions": ["unlimitedStorage","notifications"],
+  "icons": { "16": "/images/mindmap-icon.png", "128": "/images/mindmap-icon.png" }
+}
