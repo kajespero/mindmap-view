@@ -35,8 +35,8 @@ var _createNodePopUp = function(rect){
       nearestViewportElement = rect.node.nearestViewportElement;
 
       popup.css({
-        top : dragBBox.y + bbox.y + nearestViewportElement.offsetTop + (dragBBox.y === 35 ? 35 : 0) +'px',
-        left : dragBBox.x + bbox.x + nearestViewportElement.offsetLeft + (dragBBox.x === 10 ? 10 : 0) +'px',
+        top : dragBBox.y + bbox.y + nearestViewportElement.offsetTop - 35 +'px',
+        left : dragBBox.x + bbox.x + nearestViewportElement.offsetLeft - 10 +'px',
         width : 300 + 'px',
         height : 25 + 'px',
         position : 'absolute'
