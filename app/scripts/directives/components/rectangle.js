@@ -29,7 +29,7 @@ var _createSVGNode = function($interpolate, $scope){
 }
 
 var _createNodePopUp = function(rect){
-   var popup = angular.element('<ng-pop-up-input node-value="node.value" save="save()" autofocus/>'),
+   var popup = angular.element('<ng-pop-up-input node-value="node.value" save="save()"/>'),
       bbox = rect.getBBox(),
       dragBBox = SNAP_FIRST_GROUP.getBBox(),
       nearestViewportElement = rect.node.nearestViewportElement;
@@ -49,9 +49,7 @@ var _createNodePopUp = function(rect){
 angular.module('mindmapModule').directive('ngRectangleComponent', ['$compile', '$interpolate',  'KeyboardUtils', function($compile, $interpolate, KeyboardUtils){
 
   var _manageKeyEvent = function(event, callback){
-    if(KeyboardUtils[event.which] === 'tab'){
-      callback.call();
-    }
+    callback.call();
   }
 
 	return {
@@ -88,17 +86,24 @@ angular.module('mindmapModule').directive('ngRectangleComponent', ['$compile', '
 
           angular.element(document.querySelector('body')).on('keydown', function(event){
             if($scope.isSelectedNode){
-              _manageKeyEvent(event, function(){
-                $scope.isSelectedNode = false; 
-                mindMapSvgCrtl.createNewChild($scope.node)
-              });
+              if(event.target.tagName.toLowerCase() !== 'input'){
+                _manageKeyEvent(event, function(){
+                  $scope.isSelectedNode = false;
+                  var createdUUID;
+                  if(KeyboardUtils[event.which] === 'tab'){
+                    createdUUID = mindMapSvgCrtl.createNewChild($scope.node);
+                  } else if(KeyboardUtils[event.which] === 'enter'){
+                    createdUUID = mindMapSvgCrtl.createNewBrother($scope.node.parentId);
+                  }                  
+                });
+              } 
             }
           });
           SNAP_FIRST_GROUP.append(group);
           $compile(group.node)($scope);
         },
         post: function postLink($scope, $element) {
-          $element.append($compile('<ng-rectangle-component mind-map-node="child" ng-repeat="child in node.children"/>')($scope));
+          $element.append($compile('<ng-rectangle-component node-id={{child.id}} mind-map-node="child" ng-repeat="child in node.children"/>')($scope));
           $element.append($compile('<ng-path-component source="{{node.id}}" target="{{child.id}}" ng-repeat="child in node.children"/>')($scope));
         }
       }

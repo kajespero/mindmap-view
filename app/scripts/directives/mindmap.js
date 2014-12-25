@@ -7,10 +7,10 @@ var CLASS_SVG_CONTAINER = '.js-svg-container',
 
  var _calculRootPosition = function(svgElmt){
     return {
-          x: 10,
-          y: svgElmt[0] && svgElmt[0].clientHeight ? svgElmt[0].clientHeight/2 : 150,
-          height: 25,
-          width: 250
+      x: 10,
+      y: svgElmt[0] && svgElmt[0].clientHeight ? svgElmt[0].clientHeight/2 : 150,
+      height: 25,
+      width: 250
     };
 };
 
@@ -179,7 +179,16 @@ angular.module('mindmapModule').directive('mindMapSvg', ['$compile','MindmapServ
           newBorn.position = _calculateNewChildPosition(newBorn);
           _updatePathPosition();
           $scope.$digest();
+          return newBorn.id;
         };
+
+        this.createNewBrother = function(parentId){
+          if(parentId){
+            return this.createNewChild(TREE_STRUCTURE[parentId].structure.node);
+          }
+          
+        };
+
         this.saveMindMap = function(){
           mindmapService.saveMindMap($scope.mindmap);
         };
