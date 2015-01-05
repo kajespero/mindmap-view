@@ -59,9 +59,6 @@ body {
   margin-top: 28px;
 }
 
-
-.mindmap-text:hover,
-.mindmap-rectangle:hover,
 .mindmap-text.active,
 .mindmap-rectangle.active{
   stroke: red; 

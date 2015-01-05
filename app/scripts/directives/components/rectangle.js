@@ -73,11 +73,19 @@ angular.module('mindmapModule').directive('ngRectangleComponent', ['$compile', '
           var group = _createSVGNode($interpolate, $scope);
 
           group.mouseover(function(event){
-            mindMapSvgCrtl.setSelectedNodeId($scope.node.id);     
+            var allElementSelected = SNAP_SVG.selectAll('.active');
+            allElementSelected.forEach(function(selectedElmnt){
+              selectedElmnt.removeClass('active');
+            })
+            mindMapSvgCrtl.setSelectedNodeId($scope.node.id);  
+            group[0].addClass('active');
+            group[1].addClass('active');   
           });
 
           group.mouseout(function(event){
-            mindMapSvgCrtl.setSelectedNodeId();  
+            mindMapSvgCrtl.setSelectedNodeId();
+            group[0].removeClass('active');
+            group[1].removeClass('active');
           });
 
           group.dblclick(function(event){
@@ -107,6 +115,7 @@ angular.module('mindmapModule').directive('ngRectangleComponent', ['$compile', '
             if($scope.$parent.$last){
               if($scope.node){
                   if($scope.node.id === mindMapSvgCrtl.getLastBornId()){
+
                     group[0].addClass('active');
                     group[1].addClass('active');
                     angular.element(CONTAINER).append($compile(_createNodePopUp(group[0]))($scope));
