@@ -178,8 +178,13 @@ angular.module('mindmapModule').directive('mindMapSvg', ['$compile','MindmapServ
           _walkThruTree();
           newBorn.position = _calculateNewChildPosition(newBorn);
           _updatePathPosition();
+          $scope.lastBorn = newBorn.id;
           $scope.$digest();
           return newBorn.id;
+        };
+
+        this.getLastBornId = function(){
+          return $scope.lastBorn;
         };
 
         this.createNewBrother = function(parentId){
@@ -198,6 +203,13 @@ angular.module('mindmapModule').directive('mindMapSvg', ['$compile','MindmapServ
         this.getPathPosition = function(sourceId, targetId){
           return _calculatePathPosition(sourceId, targetId);
         };
+
+        this.setSelectedNodeId = function(selectedNodeId){
+          $scope.selectedNodeId = selectedNodeId;
+        };
+        this.getSelectedNodeId = function(){
+          return  $scope.selectedNodeId || $scope.root.id;
+        }
       },
       link: function($scope, $element){
         SNAP_SVG = Snap(document.querySelector(CLASS_SVG_CONTAINER));

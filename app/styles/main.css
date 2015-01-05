@@ -61,7 +61,9 @@ body {
 
 
 .mindmap-text:hover,
-.mindmap-rectangle:hover{
+.mindmap-rectangle:hover,
+.mindmap-text.active,
+.mindmap-rectangle.active{
   stroke: red; 
 }
 

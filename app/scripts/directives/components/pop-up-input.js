@@ -18,9 +18,9 @@ angular.module('mindmapModule').directive('ngPopUpInput', ['$compile', 'Keyboard
           $scope.save();
         });
 
-        $element.bind('keyup', function(event) {
-          if(KeyboardUtils[event.which] === 'enter' || KeyboardUtils[event.which] === 'esc'){
-            $element.unbind('keyup');
+        $element.bind('keydown', function(event) {
+          if(KeyboardUtils[event.which] === KeyboardUtils.keys.enter || KeyboardUtils[event.which] === KeyboardUtils.keys.esc){
+            $element.unbind('keydown');
             $element.remove();
             $scope.save();
           }

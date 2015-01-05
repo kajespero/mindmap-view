@@ -10,7 +10,7 @@ var _createSVGNode = function($interpolate, $scope){
   var snapRect = SNAP_SVG.rect().addClass('mindmap-rectangle'),
       snapText = SNAP_SVG.text().addClass('mindmap-text'),
       snapGroup = SNAP_SVG.group(snapRect, snapText); 
-
+  snapGroup.attr('node-id', "{{node.id}}");
   snapRect.attr({
     x: "{{node.position.x}}",
     y: "{{node.position.y}}",
@@ -35,8 +35,8 @@ var _createNodePopUp = function(rect){
       nearestViewportElement = rect.node.nearestViewportElement;
 
       popup.css({
-        top : dragBBox.y + bbox.y + nearestViewportElement.offsetTop - 35 +'px',
-        left : dragBBox.x + bbox.x + nearestViewportElement.offsetLeft - 10 +'px',
+        top : dragBBox.y + bbox.y + nearestViewportElement.offsetTop+'px',
+        left : dragBBox.x + bbox.x + nearestViewportElement.offsetLeft  +'px',
         width : 300 + 'px',
         height : 25 + 'px',
         position : 'absolute'
@@ -44,9 +44,8 @@ var _createNodePopUp = function(rect){
     return popup;
 }
 
-
-
-angular.module('mindmapModule').directive('ngRectangleComponent', ['$compile', '$interpolate',  'KeyboardUtils', function($compile, $interpolate, KeyboardUtils){
+angular.module('mindmapModule').directive('ngRectangleComponent', ['$compile', '$interpolate', '$timeout',  'KeyboardUtils', 
+    function($compile, $interpolate, $timeout,KeyboardUtils){
 
   var _manageKeyEvent = function(event, callback){
     callback.call();
@@ -57,7 +56,8 @@ angular.module('mindmapModule').directive('ngRectangleComponent', ['$compile', '
       replace:true,
       templateNamespace : 'g',
       scope: {
-      	node: '=mindMapNode'
+      	node: '=mindMapNode',
+        lastBorn: '@lastBorn'
       },
       require : '^mindMapSvg',
       link: {
@@ -73,11 +73,11 @@ angular.module('mindmapModule').directive('ngRectangleComponent', ['$compile', '
           var group = _createSVGNode($interpolate, $scope);
 
           group.mouseover(function(event){
-            $scope.isSelectedNode = true; 
+            mindMapSvgCrtl.setSelectedNodeId($scope.node.id);     
           });
 
           group.mouseout(function(event){
-             $scope.isSelectedNode = false; 
+            mindMapSvgCrtl.setSelectedNodeId();  
           });
 
           group.dblclick(function(event){
@@ -85,27 +85,41 @@ angular.module('mindmapModule').directive('ngRectangleComponent', ['$compile', '
           });
 
           angular.element(document.querySelector('body')).on('keydown', function(event){
-            if($scope.isSelectedNode){
+            if($scope.node.id === mindMapSvgCrtl.getSelectedNodeId()){
               if(event.target.tagName.toLowerCase() !== 'input'){
                 _manageKeyEvent(event, function(){
-                  $scope.isSelectedNode = false;
+                  group[0].removeClass('active');
+                  group[1].removeClass('active');
                   var createdUUID;
-                  if(KeyboardUtils[event.which] === 'tab'){
+                  if(KeyboardUtils[event.which] === KeyboardUtils.keys.tab){
                     createdUUID = mindMapSvgCrtl.createNewChild($scope.node);
-                  } else if(KeyboardUtils[event.which] === 'enter'){
+                  } else if(KeyboardUtils[event.which] === KeyboardUtils.keys.enter){
                     createdUUID = mindMapSvgCrtl.createNewBrother($scope.node.parentId);
-                  }                  
+                  }
+                   mindMapSvgCrtl.setSelectedNodeId(createdUUID);              
                 });
               } 
             }
           });
           SNAP_FIRST_GROUP.append(group);
           $compile(group.node)($scope);
+          $timeout(function () {
+            if($scope.$parent.$last){
+              if($scope.node){
+                  if($scope.node.id === mindMapSvgCrtl.getLastBornId()){
+                    group[0].addClass('active');
+                    group[1].addClass('active');
+                    angular.element(CONTAINER).append($compile(_createNodePopUp(group[0]))($scope));
+                    mindMapSvgCrtl.setSelectedNodeId($scope.node.id);
+                  }
+                }
+              }
+          });
         },
-        post: function postLink($scope, $element) {
+        post: function postLink($scope, $element, attrs, mindMapSvgCrtl) {
           $element.append($compile('<ng-rectangle-component node-id={{child.id}} mind-map-node="child" ng-repeat="child in node.children"/>')($scope));
           $element.append($compile('<ng-path-component source="{{node.id}}" target="{{child.id}}" ng-repeat="child in node.children"/>')($scope));
         }
-      }
+      },
     };
 }]);
