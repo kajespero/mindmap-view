@@ -44,10 +44,11 @@ var _createNodePopUp = function(rect){
     return popup;
 }
 
-angular.module('mindmapModule').directive('ngRectangleComponent', ['$compile', '$interpolate', '$timeout',  'KeyboardUtils', 
-    function($compile, $interpolate, $timeout,KeyboardUtils){
+angular.module('mindmapModule').directive('ngRectangleComponent', ['$compile', '$interpolate', '$timeout', 
+    function($compile, $interpolate, $timeout){
 
   var _manageKeyEvent = function(event, callback){
+    event.preventDefault();
     callback.call();
   }
 
@@ -73,51 +74,20 @@ angular.module('mindmapModule').directive('ngRectangleComponent', ['$compile', '
           var group = _createSVGNode($interpolate, $scope);
 
           group.mouseover(function(event){
-            var allElementSelected = SNAP_SVG.selectAll('.active');
-            allElementSelected.forEach(function(selectedElmnt){
-              selectedElmnt.removeClass('active');
-            })
-            mindMapSvgCrtl.setSelectedNodeId($scope.node.id);  
-            group[0].addClass('active');
-            group[1].addClass('active');   
-          });
-
-          group.mouseout(function(event){
-            mindMapSvgCrtl.setSelectedNodeId();
-            group[0].removeClass('active');
-            group[1].removeClass('active');
+            mindMapSvgCrtl.setSelectedNodeId($scope.node.id); 
           });
 
           group.dblclick(function(event){
              angular.element(CONTAINER).append($compile(_createNodePopUp(this[0]))($scope));
           });
 
-          angular.element(document.querySelector('body')).on('keydown', function(event){
-            if($scope.node.id === mindMapSvgCrtl.getSelectedNodeId()){
-              if(event.target.tagName.toLowerCase() !== 'input'){
-                _manageKeyEvent(event, function(){
-                  group[0].removeClass('active');
-                  group[1].removeClass('active');
-                  var createdUUID;
-                  if(KeyboardUtils[event.which] === KeyboardUtils.keys.tab){
-                    createdUUID = mindMapSvgCrtl.createNewChild($scope.node);
-                  } else if(KeyboardUtils[event.which] === KeyboardUtils.keys.enter){
-                    createdUUID = mindMapSvgCrtl.createNewBrother($scope.node.parentId);
-                  }
-                   mindMapSvgCrtl.setSelectedNodeId(createdUUID);              
-                });
-              } 
-            }
-          });
+
           SNAP_FIRST_GROUP.append(group);
           $compile(group.node)($scope);
           $timeout(function () {
             if($scope.$parent.$last){
               if($scope.node){
                   if($scope.node.id === mindMapSvgCrtl.getLastBornId()){
-
-                    group[0].addClass('active');
-                    group[1].addClass('active');
                     angular.element(CONTAINER).append($compile(_createNodePopUp(group[0]))($scope));
                     mindMapSvgCrtl.setSelectedNodeId($scope.node.id);
                   }

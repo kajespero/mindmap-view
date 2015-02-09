@@ -9,7 +9,7 @@ angular.module('mindmapModule').service('IndexedDBProvider', ['$q', function($q)
 	window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.mozIDBTransaction || window.msIDBTransaction;
 	window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.mozIDBKeyRange || window.msIDBKeyRange;
 
-	var databaseVersion = 1,
+	var databaseVersion = 1.0,
 		mindMapRequest,
 		mindMapDataBase = {};
 	
@@ -40,7 +40,7 @@ angular.module('mindmapModule').service('IndexedDBProvider', ['$q', function($q)
 	var _createTransaction = function(columnName){
 		var transaction = mindMapDataBase.db.transaction([columnName], 'readwrite');
 		transaction.oncomplete = function(event){
-			//console.log('transaction done without error');
+			console.log('transaction done without error');
 		}
 		transaction.onerror = function(event){
 			console.log('transaction on error ');

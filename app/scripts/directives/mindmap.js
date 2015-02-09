@@ -3,7 +3,8 @@
 
 var CLASS_SVG_CONTAINER = '.js-svg-container',
     SNAP_SVG, 
-    TREE_STRUCTURE;
+    TREE_STRUCTURE,
+    MINDMAP_CTRL;
 
  var _calculRootPosition = function(svgElmt){
     return {
@@ -44,7 +45,7 @@ var _createTreeStructure = function(node, parent, previousNodeId){
       }
       var previousStructure = previousNodeId && TREE_STRUCTURE[previousNodeId] ? TREE_STRUCTURE[previousNodeId] : null;
       if(previousStructure){
-        previousStructure.structure.nextNodeId = node.id;
+        TREE_STRUCTURE[previousNodeId].structure.nextNodeId = node.id;
       }
     }
 
@@ -146,30 +147,34 @@ var _updatePathPosition = function(){
     });
 };
 
-angular.module('mindmapModule').directive('mindMapSvg', ['$compile','MindmapService', function($compile, mindmapService){
+var _navigateThruTree = function(originId, type){
+  var originStructure = TREE_STRUCTURE[originId],
+      nodeParent = originStructure.structure.parent,
+      indexOf = nodeParent.children.indexOf(originStructure.structure.node);
+
+  if(type === 'up'){
+    if(indexOf > 0){
+      return nodeParent.children[indexOf-1] ? nodeParent.children[indexOf-1].id : null;
+    }
+  } else if(type === 'down'){
+    if(indexOf < nodeParent.children.length){
+      return nodeParent.children[indexOf+1] ? nodeParent.children[indexOf+1].id : null;
+    }
+  }
+};
+
+var _getElement = function(nodeId){
+  return SNAP_SVG.select('g[node-id="'+nodeId+'"]');
+}
+
+angular.module('mindmapModule').directive('mindMapSvg', ['$compile','MindmapService', 'KeyboardUtils', function($compile, mindmapService, KeyboardUtils){
 
   var _createChild = function(parent){
     var newBornNode = mindmapService.create(parent.id);
     return newBornNode; 
   };
 
-	return {
-      restrict: 'AE',
-      replace: true,
-      templateNamespace : 'svg',
-      scope: {
-      	 mindmapid: '=attrMindMap'
-      },
-      templateUrl: '/templates/template-mindmap.html',
-      controller : function($scope, $element){
-        var resolvedNode = mindmapService.getMindMap($scope.mindmapid);
-        resolvedNode.then(function(mindmap){
-          $scope.mindmap = mindmap;
-          $scope.root = mindmap.root;
-          $scope.root.position = _calculRootPosition($element.find('svg'));
-          _createTreeStructure($scope.root);
-          _walkThruTree();
-        });
+  function MindMapController($scope){
         this.createNewChild = function(parent){
           var newBorn = _createChild(parent);
           parent.children.push(newBorn);
@@ -191,8 +196,11 @@ angular.module('mindmapModule').directive('mindMapSvg', ['$compile','MindmapServ
           if(parentId){
             return this.createNewChild(TREE_STRUCTURE[parentId].structure.node);
           }
-          
         };
+
+        this.navigateThruMap = function(origin, type){
+          return _navigateThruTree(origin.id, type);
+        }
 
         this.saveMindMap = function(){
           mindmapService.saveMindMap($scope.mindmap);
@@ -206,14 +214,87 @@ angular.module('mindmapModule').directive('mindMapSvg', ['$compile','MindmapServ
 
         this.setSelectedNodeId = function(selectedNodeId){
           $scope.selectedNodeId = selectedNodeId;
+          $scope.$digest();
         };
         this.getSelectedNodeId = function(){
           return  $scope.selectedNodeId || $scope.root.id;
         }
+        return this;
+  }
+
+	var directive =  {
+      restrict: 'AE',
+      replace: true,
+      templateNamespace : 'svg',
+      scope: {
+      	 mindmapid: '=attrMindMap'
+      },
+      templateUrl: '/templates/template-mindmap.html',
+      controller : function($scope, $element){
+        var resolvedNode = mindmapService.getMindMap($scope.mindmapid);
+        resolvedNode.then(function(mindmap){
+          $scope.mindmap = mindmap;
+          $scope.root = mindmap.root;
+          $scope.root.position = _calculRootPosition($element.find('svg'));
+          _createTreeStructure($scope.root);
+          _walkThruTree();
+        });
+
+        this.setSelectedNodeId = function(selectedNodeId){
+          MINDMAP_CTRL.setSelectedNodeId(selectedNodeId);
+        };
+
+        this.getLastBornId = function(){
+          return MINDMAP_CTRL.getLastBornId();
+        };
+
+        this.saveMindMap = function(){
+          mindmapService.saveMindMap($scope.mindmap);
+        };
+
+        this.getPathPosition = function(sourceId, targetId){
+          return _calculatePathPosition(sourceId, targetId);
+        };
       },
       link: function($scope, $element){
         SNAP_SVG = Snap(document.querySelector(CLASS_SVG_CONTAINER));
         SNAP_SVG.select('g').drag();
+
+        $scope.$watch('selectedNodeId', function(newValue, oldValue) {
+            if(newValue !== oldValue){
+              var newSelectedGroup = _getElement(newValue),
+                  oldSelectdGroup = oldValue ? _getElement(oldValue) : _getElement($scope.root.id);
+
+              if(oldSelectdGroup){
+                oldSelectdGroup[0].removeClass('active');
+                oldSelectdGroup[1].removeClass('active');
+              }
+             
+              if(newSelectedGroup){
+                newSelectedGroup[0].addClass('active');
+                newSelectedGroup[1].addClass('active');    
+              }
+              
+            }
+        });
+
+        angular.element(document.querySelector('body')).on('keydown', function(event){
+           if(event.target.tagName.toLowerCase() !== 'input'){
+              event.preventDefault();
+              var selectedNode = TREE_STRUCTURE[MINDMAP_CTRL.getSelectedNodeId()].structure.node;
+              if(KeyboardUtils[event.which] === KeyboardUtils.keys.tab){
+                MINDMAP_CTRL.setSelectedNodeId(MINDMAP_CTRL.createNewChild(selectedNode));
+              } else if(KeyboardUtils[event.which] === KeyboardUtils.keys.enter){
+                MINDMAP_CTRL.setSelectedNodeId(MINDMAP_CTRL.createNewBrother(selectedNode.parentId));
+              } else if (event.which > 36 && event.which < 41){
+                MINDMAP_CTRL.setSelectedNodeId(MINDMAP_CTRL.navigateThruMap(selectedNode, KeyboardUtils[event.which]));
+              }     
+              } 
+          });
+        MINDMAP_CTRL = MINDMAP_CTRL || new MindMapController($scope);
       }
+      
     };
+
+    return directive;
 }]);
