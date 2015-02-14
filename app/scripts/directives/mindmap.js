@@ -147,21 +147,6 @@ var _updatePathPosition = function(){
     });
 };
 
-var _navigateThruTree = function(originId, type){
-  var originStructure = TREE_STRUCTURE[originId],
-      nodeParent = originStructure.structure.parent,
-      indexOf = nodeParent.children.indexOf(originStructure.structure.node);
-
-  if(type === 'up'){
-    if(indexOf > 0){
-      return nodeParent.children[indexOf-1] ? nodeParent.children[indexOf-1].id : null;
-    }
-  } else if(type === 'down'){
-    if(indexOf < nodeParent.children.length){
-      return nodeParent.children[indexOf+1] ? nodeParent.children[indexOf+1].id : null;
-    }
-  }
-};
 
 var _getElement = function(nodeId){
   return SNAP_SVG.select('g[node-id="'+nodeId+'"]');
@@ -173,6 +158,32 @@ angular.module('mindmapModule').directive('mindMapSvg', ['$compile','MindmapServ
     var newBornNode = mindmapService.create(parent.id);
     return newBornNode; 
   };
+
+  var _navigateThruTree = function(originId, type){
+    var originStructure = TREE_STRUCTURE[originId],
+        nodeParent = originStructure.structure.parent,
+        node = originStructure.structure.node,
+        indexOf = nodeParent.children.indexOf(originStructure.structure.node);
+
+    if(type === KeyboardUtils.keys.up){
+      if(indexOf > 0){
+        return nodeParent.children[indexOf-1] ? nodeParent.children[indexOf-1].id : nodeParent.id;
+      } else {
+        return node.parentId;
+      }
+    } else if(type === KeyboardUtils.keys.down){
+      if(indexOf < nodeParent.children.length){
+        return nodeParent.children[indexOf+1] ? nodeParent.children[indexOf+1].id : nodeParent.id;
+      } else {
+        return node.parentId;
+      }
+    } else if(type === KeyboardUtils.keys.left){
+      return node.parentId ? node.parentId: node.id;
+    } else if (type === KeyboardUtils.keys.right){
+      return node.children.length > 0 ? node.children[0].id : node.id;
+    }
+  };
+
 
   function MindMapController($scope){
         this.createNewChild = function(parent){
@@ -280,16 +291,18 @@ angular.module('mindmapModule').directive('mindMapSvg', ['$compile','MindmapServ
 
         angular.element(document.querySelector('body')).on('keydown', function(event){
            if(event.target.tagName.toLowerCase() !== 'input'){
-              event.preventDefault();
               var selectedNode = TREE_STRUCTURE[MINDMAP_CTRL.getSelectedNodeId()].structure.node;
               if(KeyboardUtils[event.which] === KeyboardUtils.keys.tab){
+                 event.preventDefault();
                 MINDMAP_CTRL.setSelectedNodeId(MINDMAP_CTRL.createNewChild(selectedNode));
               } else if(KeyboardUtils[event.which] === KeyboardUtils.keys.enter){
+                 event.preventDefault();
                 MINDMAP_CTRL.setSelectedNodeId(MINDMAP_CTRL.createNewBrother(selectedNode.parentId));
               } else if (event.which > 36 && event.which < 41){
+                 event.preventDefault();
                 MINDMAP_CTRL.setSelectedNodeId(MINDMAP_CTRL.navigateThruMap(selectedNode, KeyboardUtils[event.which]));
               }     
-              } 
+            } 
           });
         MINDMAP_CTRL = MINDMAP_CTRL || new MindMapController($scope);
       }
