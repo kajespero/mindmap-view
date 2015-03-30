@@ -152,7 +152,8 @@ var _getElement = function(nodeId){
   return SNAP_SVG.select('g[node-id="'+nodeId+'"]');
 }
 
-angular.module('mindmapModule').directive('mindMapSvg', ['$compile','MindmapService', 'KeyboardUtils', function($compile, mindmapService, KeyboardUtils){
+angular.module('mindmapModule').directive('mindMapSvg', ['$compile','MindmapService', 'KeyboardUtils',
+  function($compile, mindmapService, KeyboardUtils){
 
   var _createChild = function(parent){
     var newBornNode = mindmapService.create(parent.id);
@@ -236,7 +237,6 @@ angular.module('mindmapModule').directive('mindMapSvg', ['$compile','MindmapServ
 	var directive =  {
       restrict: 'AE',
       replace: true,
-      templateNamespace : 'svg',
       scope: {
       	 mindmapid: '=attrMindMap'
       },

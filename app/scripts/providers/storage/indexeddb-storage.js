@@ -1,6 +1,6 @@
-'use strict'
+'use strict';
 
-angular.module('mindmapModule').service('IndexedDBProvider', ['$q', function($q){
+angular.module('mindmapModule').factory('IndexedDBProvider', ['$q', function($q){
 
 	if(!'indexedDB' in window){
 		window.indexedDB =  window.webkitIndexedDB || window.mozIndexedDB || window.msIndexedDB;
@@ -15,7 +15,7 @@ angular.module('mindmapModule').service('IndexedDBProvider', ['$q', function($q)
 	
 	mindMapDataBase.db = null;
 
-	var _init = function(){
+	var _init = function(objectStoreName, properties){
 		var deferred = $q.defer();
 
 		mindMapRequest = mindMapRequest || window.indexedDB.open('MindMapDataBase', databaseVersion);
@@ -32,11 +32,10 @@ angular.module('mindmapModule').service('IndexedDBProvider', ['$q', function($q)
 
 		mindMapRequest.onupgradeneeded = function(event){
 			mindMapDataBase.db = event.target.result;
-			mindMapDataBase.db.createObjectStore('mindmap', {keyPath : 'id'});
+			mindMapDataBase.db.createObjectStore(objectStoreName, properties);
 		};
 		return deferred.promise;
 	}
-
 	var _createTransaction = function(columnName){
 		var transaction = mindMapDataBase.db.transaction([columnName], 'readwrite');
 		transaction.oncomplete = function(event){
@@ -49,60 +48,75 @@ angular.module('mindmapModule').service('IndexedDBProvider', ['$q', function($q)
 
 	};
 
-	_init();
-
-	this.save = function(data){
-		if(!mindMapDataBase.db){
-			_init().then(function(){
-				var objectStore = _createTransaction('mindmap').objectStore("mindmap");
+	function IndexedDBProvider(objectStoreName, properties){
+		_init(objectStoreName, properties);
+		this.save = function(data){
+			if(!mindMapDataBase.db){
+				_init(objectStoreName, properties).then(function(){
+					var objectStore = _createTransaction(objectStoreName).objectStore(objectStoreName);
+					var request = objectStore.add(data);
+				})
+			}else {
+				var objectStore = _createTransaction(objectStoreName).objectStore(objectStoreName);
 				var request = objectStore.add(data);
-			})
-		}else {
-			var objectStore = _createTransaction('mindmap').objectStore("mindmap");
-			var request = objectStore.add(data);
-		}
-		
-	};
+			}
+		};
 
-	this.get = function(id){
-		var deferred = $q.defer();
-		if(!mindMapDataBase.db){
-			_init().then(function(){
-				var objectStore = _createTransaction('mindmap').objectStore("mindmap");
+		this.get = function(id){
+			var deferred = $q.defer();
+			if(!mindMapDataBase.db){
+				_init(objectStoreName, properties).then(function(){
+					var objectStore = _createTransaction(objectStoreName).objectStore(objectStoreName);
+					var resultat = objectStore.get(id);
+					resultat.onsuccess = function(event){
+						deferred.resolve(event.target.result);
+					}
+				})
+			}else {
+				var objectStore = _createTransaction(objectStoreName).objectStore(objectStoreName);
 				var resultat = objectStore.get(id);
 				resultat.onsuccess = function(event){
 					deferred.resolve(event.target.result);
 				}
-			})
-		}else {
-			var objectStore = _createTransaction('mindmap').objectStore("mindmap");
-			var resultat = objectStore.get(id);
-			resultat.onsuccess = function(event){
-				deferred.resolve(event.target.result);
 			}
-		}
-		return deferred.promise;
-	};
+			return deferred.promise;
+		};
 
-	this.update = function(data){
-		if(!mindMapDataBase.db){
-			_init().then(function(){
-				var objectStore = _createTransaction('mindmap').objectStore("mindmap");
+		this.update = function(data){
+			if(!mindMapDataBase.db){
+				_init(objectStoreName, properties).then(function(){
+					var objectStore = _createTransaction(objectStoreName).objectStore(objectStoreName);
+					objectStore.put(data);
+				});
+			}else {
+				var objectStore = _createTransaction(objectStoreName).objectStore(objectStoreName);
 				objectStore.put(data);
-			});
-		}else {
-			var objectStore = _createTransaction('mindmap').objectStore("mindmap");
-			objectStore.put(data);
-		}
-	};
+			}
+		};
 
-	this.getAll = function(){
-		var deferred = $q.defer();
-		if(!mindMapDataBase.db){
-			_init().then(function(){
-			  var objectStore = _createTransaction('mindmap').objectStore("mindmap"),
-			  		keyRange = window.IDBKeyRange.lowerBound(0),
-			  		cursorRequest = objectStore.openCursor(keyRange),
+		this.getAll = function(){
+			var deferred = $q.defer();
+			if(!mindMapDataBase.db){
+				_init(objectStoreName, properties).then(function(){
+				  var objectStore = _createTransaction(objectStoreName).objectStore(objectStoreName),
+				  		keyRange = window.IDBKeyRange.lowerBound(0),
+				  		cursorRequest = objectStore.openCursor(keyRange),
+				  		results = [];
+
+				  		cursorRequest.onsuccess = function(event){
+				  			var result = event.target.result;
+			  				if(result && result !== false){
+			  					results.push(result.value);
+			  					result.continue();
+			  				} else {
+			  					deferred.resolve(results);
+			  				}
+				  		}
+				});
+			}else {
+				var objectStore = _createTransaction(objectStoreName).objectStore(objectStoreName),
+				  	keyRange = window.IDBKeyRange.lowerBound(0),
+				  	cursorRequest = objectStore.openCursor(keyRange),
 			  		results = [];
 
 			  		cursorRequest.onsuccess = function(event){
@@ -114,23 +128,9 @@ angular.module('mindmapModule').service('IndexedDBProvider', ['$q', function($q)
 		  					deferred.resolve(results);
 		  				}
 			  		}
-			});
-		}else {
-			var objectStore = _createTransaction('mindmap').objectStore("mindmap"),
-			  	keyRange = window.IDBKeyRange.lowerBound(0),
-			  	cursorRequest = objectStore.openCursor(keyRange),
-		  		results = [];
-
-		  		cursorRequest.onsuccess = function(event){
-		  			var result = event.target.result;
-	  				if(result && result !== false){
-	  					results.push(result.value);
-	  					result.continue();
-	  				} else {
-	  					deferred.resolve(results);
-	  				}
-		  		}
+			}
+			return deferred.promise;
 		}
-		return deferred.promise;
 	}
+	return IndexedDBProvider;
 }]);

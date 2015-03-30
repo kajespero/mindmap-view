@@ -1,8 +1,9 @@
 'use strict';
 
 
-angular.module('mindmapModule').controller('MindmapCtrl', ['$scope', '$compile', 'MindmapService', 
+angular.module('mindmapModule').controller('MindmapCtrl', ['$scope', '$compile', 'MindmapService',
 	function($scope, $compile, mindmapService){
+
 		var _loadMindMaps = function(){
 			mindmapService.getAllMindMap().then(function(mindmaps){
 				$scope.mindmaps = mindmaps;

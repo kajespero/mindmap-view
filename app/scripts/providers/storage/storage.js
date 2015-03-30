@@ -1,21 +1,26 @@
 'use strict';
 
-angular.module('mindmapModule').service('StorageProvider', ['IndexedDBProvider',function(indexedDBProvider){
 
-	this.get = function(id){
-		return indexedDBProvider.get(id);
-	};
+angular.module('mindmapModule').factory('StorageProvider', ['IndexedDBProvider', function(IndexedDBProvider){
 
-	this.save = function(node){
-		indexedDBProvider.save(node);
-	};
+	function StorageProvider(objectStoreName, properties){
+		var indexedDBProvider = new IndexedDBProvider(objectStoreName, properties);
+		
+		this.get = function(id){
+			return indexedDBProvider.get(id);
+		};
 
-	this.update = function(node){
-		indexedDBProvider.update(node);
-	};
+		this.save = function(node){
+			indexedDBProvider.save(node);
+		};
 
-	this.getAll = function(){
-		return indexedDBProvider.getAll();
+		this.update = function(node){
+			indexedDBProvider.update(node);
+		};
+
+		this.getAll = function(){
+			return indexedDBProvider.getAll();
+		}		
 	}
-
+	return StorageProvider;
 }]);

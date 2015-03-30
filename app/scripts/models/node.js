@@ -1,6 +1,5 @@
 'use strict';
 
-
 angular.module('mindmapModule').factory('Node', ['Utils',function(utils){
 	function Position(data){
 		if (data){

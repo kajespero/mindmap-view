@@ -1,6 +1,9 @@
 'use strict';
 
-angular.module('mindmapModule').service('MindmapService', ['$q', 'Utils', 'Node', 'MindMap', 'StorageService', function($q, utils, Node,MindMap ,storageService){
+angular.module('mindmapModule').service('MindmapService', ['$q', 'Utils', 'Node', 'MindMap', 'StorageProvider', 
+	function($q, utils, Node, MindMap, StorageProvider){
+
+	var storageProvider = new StorageProvider('mindmap', {keyPath : 'id'});
 	
 	this.create = function(idParent){
 		var node = new Node();
@@ -20,12 +23,12 @@ angular.module('mindmapModule').service('MindmapService', ['$q', 'Utils', 'Node'
 	};
 
 	this.saveMindMap = function(mindmap){
-		storageService.save(mindmap);
+		storageProvider.save(mindmap);
 	};
 
 	this.getAllMindMap = function(){
 		var mindMapDeferred = $q.defer(),
-			results = storageService.getAll();
+			results = storageProvider.getAll();
 		results.then(function(mindmaps){
 			var list = [];
 			mindmaps.forEach(function(data){
@@ -38,7 +41,7 @@ angular.module('mindmapModule').service('MindmapService', ['$q', 'Utils', 'Node'
 
 	this.getMindMap = function(id){
 		var mindMapDeferred = $q.defer(),
-			result = storageService.get(id);
+			result = storageProvider.get(id);
 		result.then(function(data){
 			mindMapDeferred.resolve(new MindMap(data));
 		});
@@ -46,21 +49,21 @@ angular.module('mindmapModule').service('MindmapService', ['$q', 'Utils', 'Node'
 	};
 
 	this.saveMindMap = function(mindmap){
-		storageService.update(mindmap);
+		storageProvider.update(mindmap);
 	}
 
 	this.save = function(node){
 		if(node.id){
-			storageService.update(node);
+			storageProvider.update(node);
 		}else {
 			node.id = utils.uuid();
-			storageService.save(node);
+			storageProvider.save(node);
 		}
 	};
 
 	this.get = function(id){
 		var nodeDeferred = $q.defer(),
-			result = storageService.get(id);
+			result = storageProvider.get(id);
 		result.then(function(data){
 			nodeDeferred.resolve(new Node(data));
 		});
