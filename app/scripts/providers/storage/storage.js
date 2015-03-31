@@ -3,8 +3,8 @@
 
 angular.module('mindmapModule').factory('StorageProvider', ['IndexedDBProvider', function(IndexedDBProvider){
 
-	function StorageProvider(objectStoreName, properties){
-		var indexedDBProvider = new IndexedDBProvider(objectStoreName, properties);
+	function StorageProvider(objectStoreName){
+		var indexedDBProvider = new IndexedDBProvider(objectStoreName);
 		
 		this.get = function(id){
 			return indexedDBProvider.get(id);
