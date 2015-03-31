@@ -3,7 +3,7 @@
 angular.module('mindmapModule').service('MindmapService', ['$q', 'Utils', 'Node', 'MindMap', 'StorageProvider', 
 	function($q, utils, Node, MindMap, StorageProvider){
 
-	var storageProvider = new StorageProvider('mindmap', {keyPath : 'id'});
+	var storageProvider = new StorageProvider('mindmap');
 	
 	this.create = function(idParent){
 		var node = new Node();
