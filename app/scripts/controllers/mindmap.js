@@ -1,8 +1,16 @@
 'use strict';
 
 
-angular.module('mindmapModule').controller('MindmapCtrl', ['$scope', '$compile', 'MindmapService',
-	function($scope, $compile, mindmapService){
+angular.module('mindmapModule').controller('MindmapCtrl', ['$scope', '$compile', 'MindmapService', 'FirebaseService',
+	function($scope, $compile, mindmapService, firebaseService){
+
+		var _initiateFirebase = function(){
+			firebaseService.getAccount().then(function(account){
+				$scope.account = account;
+			});
+
+			firebaseService.getUsers();
+		};
 
 		var _loadMindMaps = function(){
 			mindmapService.getAllMindMap().then(function(mindmaps){
@@ -10,8 +18,11 @@ angular.module('mindmapModule').controller('MindmapCtrl', ['$scope', '$compile',
 			});
 		};
 
+		$scope.updateAccount = function(){
+			firebaseService.saveAccount($scope.account);
+		};
+
 		$scope.createMindMap = function($event, mindmapName){
-			console.log('create here a new mindmap ' );
 			var mindmap = mindmapService.createMindMap(mindmapName);
 			mindmapService.saveMindMap(mindmap);
 			_loadMindMaps();
@@ -26,7 +37,7 @@ angular.module('mindmapModule').controller('MindmapCtrl', ['$scope', '$compile',
 				svgContainer = document.querySelector('.js-mindmap-container');
 
 			
-			var templateMindMap = angular.element('<mind-map-svg attr-mind-map="rootId"/>'),
+			var templateMindMap = angular.element('<mind-map-svg attr-mind-map="rootId" layout="column" flex="100"/>'),
 				linkMindMapFn = $compile(templateMindMap),
 				elementMindMap = linkMindMapFn($scope);
 				
@@ -38,4 +49,5 @@ angular.module('mindmapModule').controller('MindmapCtrl', ['$scope', '$compile',
 		};
 
 		_loadMindMaps();
+		_initiateFirebase();
 }]);

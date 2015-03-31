@@ -6,6 +6,7 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="bower_components/angular-material/angular-material.css">
   </head>
   <body ng-app="mindmapViewApp" ng-csp>
     <!--[if lt IE 7]>
@@ -14,7 +15,7 @@
 
     <!-- Add your site or application content here -->
     <div class="container">
-      <div ng-view=""/>
+        <div ng-view=""/>
     </div>
 
     <!-- build:js(.) scripts/oldieshim.js -->
@@ -35,6 +36,10 @@
     <script src="bower_components/angular-route/angular-route.js"></script>
     <script src="bower_components/snap.svg/dist/snap.svg-min.js"></script>
     <script src="bower_components/underscore/underscore.js"></script>
+    <script src="bower_components/firebase/firebase.js"></script>
+    <script src="bower_components/angularfire/dist/angularfire.js"></script>
+    <script src="bower_components/angular-aria/angular-aria.js"></script>
+    <script src="bower_components/angular-material/angular-material.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
@@ -44,13 +49,16 @@
      <!-- models script -->
     <script src="scripts/models/mindmap.js"></script> 
     <script src="scripts/models/node.js"></script>
+    <script src="scripts/models/account.js"></script>
 
      <!-- providers script -->
     <script src="scripts/providers/storage/indexeddb-storage.js"></script>
     <script src="scripts/providers/storage/storage.js"></script>
+    <script src="scripts/providers/firebase-provider.js"></script>
 
     <!-- services script -->
     <script src="scripts/services/mindmap-service.js"></script>
+    <script src="scripts/services/firebase-service.js"></script>
 
     <!-- directives script -->
     <script src="scripts/directives/mindmap.js"></script>

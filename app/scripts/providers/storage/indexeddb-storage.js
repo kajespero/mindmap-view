@@ -101,6 +101,13 @@ angular.module('mindmapModule').factory('IndexedDBProvider', ['$q', function($q)
 	  		}	
 			});
 			return deferred.promise;
+		};
+
+		this.delete = function(id){
+			_openDataBase().then(function(db){
+				var objectStore = _createTransaction(db, objectStoreName).objectStore(objectStoreName);
+				objectStore.delete(id);
+			})
 		}
 	}
 	return IndexedDBProvider;

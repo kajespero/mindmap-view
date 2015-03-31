@@ -82,6 +82,14 @@ body {
    fill: none;
 }
 
+.hidden {
+  display: none !important;
+}
+
+.show {
+  display: inherit;
+}
+
 
 /* Responsive: Portrait tablets and up */
 @media screen and (min-width: 768px) {

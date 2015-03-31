@@ -20,7 +20,11 @@ angular.module('mindmapModule').factory('StorageProvider', ['IndexedDBProvider',
 
 		this.getAll = function(){
 			return indexedDBProvider.getAll();
-		}		
+		}	;
+
+		this.delete = function(id){
+			
+		}	
 	}
 	return StorageProvider;
 }]);

@@ -1,12 +1,28 @@
-<div class='js-controller' >
-  <div>
-	<div>Give a name to your new Mindmap : </div><input ng-model="mindmapName" type="text" />
-	<button ng-click="createMindMap($event,mindmapName)" ng-show="mindmapName">Add</button>
-  </div>
-  <div ng-show="mindmaps">
-  	<div>Choose to load mindmap</div>
-  	<select ng-model="selectedMindmap" ng-options="mindmap.id as mindmap.name for mindmap in mindmaps" ng-change="loadMindMap(selectedMindmap)">
-      <option value="">-- choose mindmap --</option>
-    </select>
+<div>
+  <div layout="row" flex style="height:800px">
+      <md-sidenav layout="column" class="md-sidenav-left md-whiteframe-z2" md-component-id="left" md-is-locked-open="$mdMedia('gt-sm')">
+        <md-toolbar class="md-theme-indigo">
+          <h1 id='labelAcccount' ng-class="{'hidden': showme }" class="md-toolbar-tools"  ng-dblclick="showme=true">{{account.speudo}}</h1>
+          <form ng-submit="showme=false; updateAccount()">
+            <input id='editAccount' ng-class="{ 'hidden': ! showme }"  class="md-toolbar-tools" ng-blur="showme=false; updateAccount()" type='text'
+              ng-model='account.speudo'/>
+          </form>
+        </md-toolbar>
+      </md-sidenav>
+      <div layout="column" flex="100" id="content" style="height:800px; width=1000px">
+          <md-content layout="column" flex class="md-padding">
+            <div>
+              <div>Give a name to your new Mindmap : </div><input ng-model="mindmapName" type="text" />
+               <button ng-click="createMindMap($event,mindmapName)" ng-show="mindmapName">Add</button>
+            </div>
+            <div ng-show="mindmaps" class='js-controller'>
+                <div>Choose to load mindmap</div>
+                <select ng-model="selectedMindmap" ng-options="mindmap.id as mindmap.name for mindmap in mindmaps" 
+                    ng-change="loadMindMap(selectedMindmap)">
+                  <option value="">-- choose mindmap --</option>
+                </select>
+            </div>
+          </md-content>
+      </div>
   </div>
 </div>

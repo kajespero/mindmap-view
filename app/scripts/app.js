@@ -8,7 +8,7 @@
  *
  * Main module of the application.
  */
-angular.module('mindmapModule', []);
+angular.module('mindmapModule', ['firebase']);
 angular
   .module('mindmapViewApp', [
     'ngAnimate',
@@ -17,6 +17,7 @@ angular
     'ngRoute',
     'ngSanitize',
     'ngTouch',
+    'ngMaterial',
     'mindmapModule'
   ])
   .config(function ($routeProvider) {
